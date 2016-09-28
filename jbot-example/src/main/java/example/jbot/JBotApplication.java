@@ -1,9 +1,20 @@
 package example.jbot;
 
-import org.springframework.boot.SpringApplication;
-import org.springframework.boot.autoconfigure.SpringBootApplication;
+// import org.springframework.boot.SpringApplication;
+// import org.springframework.boot.autoconfigure.SpringBootApplication;
 
-@SpringBootApplication(scanBasePackages = {"me.ramswaroop.jbot", "example.jbot"})
+import org.springframework.context.ApplicationContext;
+import org.springframework.context.annotation.*;
+// import org.springframework.core.env.PropertySource;
+// import org.springframework.core.env.PropertySources;
+
+// @ImportResource({"classpath:activiti-ui-context.xml", "classpath:activiti-login-context.xml", "classpath:activiti-custom-context.xml"})
+
+// @SpringBootApplication(scanBasePackages = {"me.ramswaroop.jbot", "example.jbot"})
+@Configuration
+@ImportResource({"classpath:/application-context.xml"})
+// @PropertySource("classpath:/application.properties")
+@ComponentScan({"me.ramswaroop.jbot", "example.jbot"})
 public class JBotApplication {
 
     /**
@@ -13,6 +24,7 @@ public class JBotApplication {
      * @param args
      */
     public static void main(String[] args) {
-        SpringApplication.run(JBotApplication.class, args);
+        ApplicationContext context = new AnnotationConfigApplicationContext(JBotApplication.class);
+        // SpringApplication.run(JBotApplication.class, args);
     }
 }

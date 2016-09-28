@@ -2,17 +2,18 @@ package me.ramswaroop.jbot.core.slack;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+/*
 import org.springframework.web.socket.BinaryMessage;
 import org.springframework.web.socket.CloseStatus;
 import org.springframework.web.socket.TextMessage;
 import org.springframework.web.socket.WebSocketSession;
 import org.springframework.web.socket.handler.AbstractWebSocketHandler;
-
+*/
 /**
  * @author ramswaroop
  * @version 05/06/2016
  */
-public class BotWebSocketHandler extends AbstractWebSocketHandler {
+public class BotWebSocketHandler /* extends AbstractWebSocketHandler*/ {
 
     private static final Logger logger = LoggerFactory.getLogger(BotWebSocketHandler.class);
 
@@ -22,6 +23,7 @@ public class BotWebSocketHandler extends AbstractWebSocketHandler {
         this.bot = bot;
     }
 
+    /*
     @Override
     public void afterConnectionEstablished(WebSocketSession session) throws Exception {
         bot.afterConnectionEstablished(session);
@@ -46,4 +48,5 @@ public class BotWebSocketHandler extends AbstractWebSocketHandler {
     public void handleTransportError(WebSocketSession session, Throwable exception) throws Exception {
         bot.handleTransportError(session, exception);
     }
+    */
 }

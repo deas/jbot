@@ -4,14 +4,15 @@
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
 
-    <parent>
+    <!--parent>
         <groupId>org.springframework.boot</groupId>
         <artifactId>spring-boot-starter-parent</artifactId>
         <version>1.4.0.RELEASE</version>
         <relativePath/>
-    </parent>
+    </parent-->
 
     <artifactId>jbot-example</artifactId>
+    <groupId>me.ramswaroop.jbot</groupId>
     <name>JBot Example</name>
     <version>1.0.0-SNAPSHOT</version>
     <packaging>jar</packaging>
@@ -21,13 +22,32 @@
             <groupId>me.ramswaroop.jbot</groupId>
             <artifactId>jbot</artifactId>
             <version>3.0.3-SNAPSHOT</version>
+            <classifier>alfrepo</classifier>
+        </dependency>
+        <!-- https://mvnrepository.com/artifact/org.mockito/mockito-all -->
+        <dependency>
+            <groupId>org.mockito</groupId>
+            <artifactId>mockito-all</artifactId>
+            <version>1.10.19</version>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.springframework</groupId>
+            <artifactId>spring-test</artifactId>
+            <version>3.2.14.RELEASE</version>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.springframework</groupId>
+            <artifactId>spring-core</artifactId>
+            <version>3.2.14.RELEASE</version>
         </dependency>
 
-        <dependency>
+        <!--dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-test</artifactId>
             <scope>test</scope>
-        </dependency>
+        </dependency-->
     </dependencies>
 
 </project>
