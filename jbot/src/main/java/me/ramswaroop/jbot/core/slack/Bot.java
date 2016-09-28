@@ -404,23 +404,23 @@ public abstract class Bot {
 
                                 @Override
                                 public void onMessage(String message) {
-                                    System.out.println("on message " + message);
+                                    logger.debug("on message " + message);
                                     try {
                                         handleTextMessage(message);
                                     } catch (Exception e) {
-                                        e.printStackTrace();
+                                        logger.error(e.getMessage(), e);
                                     }
                                 }
 
                                 @Override
                                 public void onOpen(WebSocket websocket) {
-                                    System.out.println("on open");
-                                    websocket.sendMessage("...").sendMessage("...");
+                                    logger.debug("on open {}", websocket);
+                                    // websocket.sendMessage("...").sendMessage("...");
                                 }
 
                                 @Override
                                 public void onClose(WebSocket websocket) {
-                                    System.out.println("on close");
+                                    logger.debug("on close {}", websocket);
                                     // latch.countDown();
                                 }
 
