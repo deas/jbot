@@ -7,7 +7,6 @@ import me.ramswaroop.jbot.core.slack.EventType;
 import me.ramswaroop.jbot.core.slack.SlackService;
 import me.ramswaroop.jbot.core.slack.models.Event;
 import me.ramswaroop.jbot.core.slack.models.User;
-import org.asynchttpclient.ws.WebSocket;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
@@ -20,6 +19,7 @@ import org.mockito.runners.MockitoJUnitRunner;
 // import org.springframework.web.socket.TextMessage;
 // import org.springframework.web.socket.WebSocketSession;
 
+import javax.websocket.Session;
 import java.util.Arrays;
 import java.util.regex.Matcher;
 
@@ -218,17 +218,17 @@ public class SlackBotTest {
         }
 
         @Controller(events = EventType.DIRECT_MENTION)
-        public void onDirectMention(WebSocket webSocket/*Session session*/, Event event) {
+        public void onDirectMention(Session session, Event event) {
             System.out.println("Hi, I am SlackBot");
         }
 
         @Controller(events = EventType.DIRECT_MESSAGE)
-        public void onDirectMessage(WebSocket webSocket, Event event) {
+        public void onDirectMessage(Session session, Event event) {
             System.out.println("Hi, this is a direct message.");
         }
 
         @Controller(events = EventType.MESSAGE, pattern = "^([a-z ]{2})(\\d+)([a-z ]{2})$")
-        public void onReceiveMessageWithPattern(WebSocket webSocket, Event event, Matcher matcher) {
+        public void onReceiveMessageWithPattern(Session session, Event event, Matcher matcher) {
             System.out.println("First group: " + matcher.group(0) + "\n" +
                     "Second group: " + matcher.group(1) + "\n" +
                     "Third group: " + matcher.group(2) + "\n" +
@@ -236,12 +236,12 @@ public class SlackBotTest {
         }
 
         @Controller(events = EventType.PIN_ADDED)
-        public void onPinAdded(WebSocket webSocket, Event event) {
+        public void onPinAdded(Session session, Event event) {
             System.out.println("Thanks for the pin! You can find all pinned items under channel details.");
         }
 
         @Controller(events = EventType.FILE_SHARED)
-        public void onFileShared(WebSocket webSocket, Event event) {
+        public void onFileShared(Session session, Event event) {
             System.out.println("File shared.");
         }
 
@@ -250,20 +250,20 @@ public class SlackBotTest {
          */
 
         @Controller(pattern = "(setup meeting)", next = "confirmTiming")
-        public void setupMeeting(WebSocket webSocket, Event event) {
+        public void setupMeeting(Session session, Event event) {
             startConversation(event, "confirmTiming");   // start conversation
             System.out.println("Cool! At what time (ex. 15:30) do you want me to set up the meeting?");
         }
 
         @Controller(next = "askTimeForMeeting")
-        public void confirmTiming(WebSocket webSocket/*Session session*/ , Event event) {
+        public void confirmTiming(Session session , Event event) {
             System.out.println("Your meeting is set at " + event.getText() +
                     ". Would you like to repeat it tomorrow?");
             nextConversation(event);    // jump to next question in conversation
         }
 
         @Controller(next = "askWhetherToRepeat")
-        public void askTimeForMeeting(WebSocket webSocket/*Session session*/, Event event) {
+        public void askTimeForMeeting(Session session, Event event) {
             if (event.getText().contains("yes")) {
                 System.out.println("Okay. Would you like me to set a reminder for you?");
                 nextConversation(event);    // jump to next question in conversation
@@ -274,7 +274,7 @@ public class SlackBotTest {
         }
 
         @Controller
-        public void askWhetherToRepeat(WebSocket webSocket/*Session session*/, Event event) {
+        public void askWhetherToRepeat(Session session, Event event) {
             if (event.getText().contains("yes")) {
                 System.out.println("Great! I will remind you tomorrow before the meeting.");
             } else {

@@ -107,10 +107,12 @@ public class SpringHandlerInstantiator extends HandlerInstantiator {
 	}
 
 	/** @since 4.3 */
+	/*
 	@Override
 	public ObjectIdResolver resolverIdGeneratorInstance(MapperConfig<?> config, Annotated annotated, Class<?> implClass) {
 		return (ObjectIdResolver) this.beanFactory.createBean(implClass);
 	}
+	*/
 
 	/** @since 4.3 */
 	@Override
@@ -125,9 +127,11 @@ public class SpringHandlerInstantiator extends HandlerInstantiator {
 	}
 
 	/** @since 4.3 */
+	/*
 	@Override
 	public VirtualBeanPropertyWriter virtualPropertyWriterInstance(MapperConfig<?> config, Class<?> implClass) {
 		return (VirtualBeanPropertyWriter) this.beanFactory.createBean(implClass);
 	}
+	*/
 
 }

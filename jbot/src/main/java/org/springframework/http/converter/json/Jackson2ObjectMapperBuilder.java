@@ -49,12 +49,13 @@ import com.fasterxml.jackson.databind.cfg.HandlerInstantiator;
 import com.fasterxml.jackson.databind.jsontype.TypeResolverBuilder;
 import com.fasterxml.jackson.databind.module.SimpleModule;
 import com.fasterxml.jackson.databind.ser.FilterProvider;
+/*
 import com.fasterxml.jackson.dataformat.cbor.CBORFactory;
 import com.fasterxml.jackson.dataformat.smile.SmileFactory;
 import com.fasterxml.jackson.dataformat.xml.JacksonXmlModule;
 import com.fasterxml.jackson.dataformat.xml.XmlFactory;
 import com.fasterxml.jackson.dataformat.xml.XmlMapper;
-
+*/
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.FatalBeanException;
 import org.springframework.context.ApplicationContext;
@@ -94,7 +95,7 @@ import org.springframework.util.StringUtils;
  */
 public class Jackson2ObjectMapperBuilder {
 
-	private boolean createXmlMapper = false;
+	// private boolean createXmlMapper = false;
 
 	private JsonFactory factory;
 
@@ -143,11 +144,11 @@ public class Jackson2ObjectMapperBuilder {
 	 * If set to {@code true}, an {@link XmlMapper} will be created using its
 	 * default constructor. This is only applicable to {@link #build()} calls,
 	 * not to {@link #configure} calls.
-	 */
 	public Jackson2ObjectMapperBuilder createXmlMapper(boolean createXmlMapper) {
 		this.createXmlMapper = createXmlMapper;
 		return this;
 	}
+	 */
 
 	/**
 	 * Define the {@link JsonFactory} to be used to create the {@link ObjectMapper}
@@ -600,14 +601,14 @@ public class Jackson2ObjectMapperBuilder {
 	@SuppressWarnings("unchecked")
 	public <T extends ObjectMapper> T build() {
 		ObjectMapper mapper;
-		if (this.createXmlMapper) {
+		/*if (this.createXmlMapper) {
 			mapper = (this.defaultUseWrapper != null ?
 					new XmlObjectMapperInitializer().create(this.defaultUseWrapper) :
 					new XmlObjectMapperInitializer().create());
 		}
-		else {
+		else { */
 			mapper = (this.factory != null ? new ObjectMapper(this.factory) : new ObjectMapper());
-		}
+		// }
 		configure(mapper);
 		return (T) mapper;
 	}
@@ -810,30 +811,30 @@ public class Jackson2ObjectMapperBuilder {
 	/**
 	 * Obtain a {@link Jackson2ObjectMapperBuilder} instance in order to
 	 * build an {@link XmlMapper} instance.
-	 */
 	public static Jackson2ObjectMapperBuilder xml() {
 		return new Jackson2ObjectMapperBuilder().createXmlMapper(true);
 	}
+	 */
 
 	/**
 	 * Obtain a {@link Jackson2ObjectMapperBuilder} instance in order to
 	 * build a Smile data format {@link ObjectMapper} instance.
 	 * @since 5.0
-	 */
 	public static Jackson2ObjectMapperBuilder smile() {
 		return new Jackson2ObjectMapperBuilder().factory(new SmileFactoryInitializer().create());
 	}
+	 */
 
 	/**
 	 * Obtain a {@link Jackson2ObjectMapperBuilder} instance in order to
 	 * build a CBOR data format {@link ObjectMapper} instance.
 	 * @since 5.0
-	 */
 	public static Jackson2ObjectMapperBuilder cbor() {
 		return new Jackson2ObjectMapperBuilder().factory(new CborFactoryInitializer().create());
 	}
+	 */
 
-
+	/*
 	private static class XmlObjectMapperInitializer {
 
 		public ObjectMapper create() {
@@ -873,5 +874,6 @@ public class Jackson2ObjectMapperBuilder {
 			return new CBORFactory();
 		}
 	}
+	*/
 
 }

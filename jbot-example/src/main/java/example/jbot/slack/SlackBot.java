@@ -5,7 +5,6 @@ import me.ramswaroop.jbot.core.slack.Controller;
 import me.ramswaroop.jbot.core.slack.EventType;
 import me.ramswaroop.jbot.core.slack.models.Event;
 import me.ramswaroop.jbot.core.slack.models.Message;
-import org.asynchttpclient.ws.WebSocket;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
@@ -15,6 +14,7 @@ import org.springframework.context.annotation.PropertySource;
 import org.springframework.stereotype.Component;
 // import org.springframework.web.socket.WebSocketSession;
 
+import javax.websocket.Session;
 import java.util.regex.Matcher;
 
 /**
@@ -53,12 +53,12 @@ public class SlackBot extends Bot {
      * to make your task easier, Slack doesn't have any direct way to
      * determine these type of events.
      *
-     * @param webSocket
+     * @param session
      * @param event
      */
     @Controller(events = {EventType.DIRECT_MENTION, EventType.DIRECT_MESSAGE})
-    public void onReceiveDM(WebSocket/*Session session*/ webSocket, Event event) {
-        reply(/*session*/ webSocket, event, new Message("Hi, I am " + slackService.getCurrentUser().getName()));
+    public void onReceiveDM(Session session, Event event) {
+        reply(session, event, new Message("Hi, I am " + slackService.getCurrentUser().getName()));
     }
 
     /**
@@ -66,12 +66,12 @@ public class SlackBot extends Bot {
      * the pattern {@code ([a-z ]{2})(\d+)([a-z ]{2})}. For example,
      * messages like "ab12xy" or "ab2bc" etc will invoke this method.
      *
-     * @param webSocket
+     * @param session
      * @param event
      */
     @Controller(events = EventType.MESSAGE, pattern = "^([a-z ]{2})(\\d+)([a-z ]{2})$")
-    public void onReceiveMessage(WebSocket/*Session session*/  webSocket, Event event, Matcher matcher) {
-        reply(/*session*/ webSocket, event, new Message("First group: " + matcher.group(0) + "\n" +
+    public void onReceiveMessage(Session session, Event event, Matcher matcher) {
+        reply(session, event, new Message("First group: " + matcher.group(0) + "\n" +
                 "Second group: " + matcher.group(1) + "\n" +
                 "Third group: " + matcher.group(2) + "\n" +
                 "Fourth group: " + matcher.group(3)));
@@ -80,12 +80,12 @@ public class SlackBot extends Bot {
     /**
      * Invoked when an item is pinned in the channel.
      *
-     * @param webSocket
+     * @param session
      * @param event
      */
     @Controller(events = EventType.PIN_ADDED)
-    public void onPinAdded(WebSocket/*Session session*/ webSocket, Event event) {
-        reply(webSocket, event, new Message("Thanks for the pin! You can find all pinned items under channel details."));
+    public void onPinAdded(Session session, Event event) {
+        reply(session, event, new Message("Thanks for the pin! You can find all pinned items under channel details."));
     }
 
     /**
@@ -94,11 +94,11 @@ public class SlackBot extends Bot {
      * a channel id for this event type. You can learn more about
      * <a href="https://api.slack.com/events/file_shared">file_shared</a>
      * event from Slack's Api documentation.
-     *  @param webSocket
+     * @param session
      * @param event
      */
     @Controller(events = EventType.FILE_SHARED)
-    public void onFileShared(WebSocket webSocket, Event event) {
+    public void onFileShared(Session session, Event event) {
         logger.info("File shared: {}", event);
     }
 
@@ -108,54 +108,54 @@ public class SlackBot extends Bot {
      * calls {@link Bot#startConversation(Event, String)} within it. You can chain methods which will be invoked
      * one after the other leading to a conversation. You can chain methods with {@link Controller#next()} by
      * specifying the method name to chain with.
-     *  @param webSocket
+     * @param session
      * @param event
      */
     @Controller(pattern = "(setup meeting)", next = "confirmTiming")
-    public void setupMeeting(WebSocket webSocket, Event event) {
+    public void setupMeeting(Session session, Event event) {
         startConversation(event, "confirmTiming");   // start conversation
-        reply(webSocket, event, new Message("Cool! At what time (ex. 15:30) do you want me to set up the meeting?"));
+        reply(session, event, new Message("Cool! At what time (ex. 15:30) do you want me to set up the meeting?"));
     }
 
     /**
-     * This method is chained with {@link SlackBot#setupMeeting(WebSocket, Event)}.
-     *  @param webSocket
+     * This method is chained with {@link SlackBot#setupMeeting(Session, Event)}.
+     *  @param session
      * @param event
      */
     @Controller(next = "askTimeForMeeting")
-    public void confirmTiming(WebSocket webSocket, Event event) {
-        reply(webSocket, event, new Message("Your meeting is set at " + event.getText() +
+    public void confirmTiming(Session session, Event event) {
+        reply(session, event, new Message("Your meeting is set at " + event.getText() +
                 ". Would you like to repeat it tomorrow?"));
         nextConversation(event);    // jump to next question in conversation
     }
 
     /**
-     * This method is chained with {@link SlackBot#confirmTiming(WebSocket, Event)}.
-     *  @param webSocket
+     * This method is chained with {@link SlackBot#confirmTiming(Session, Event)}.
+     * @param session
      * @param event
      */
     @Controller(next = "askWhetherToRepeat")
-    public void askTimeForMeeting(WebSocket webSocket, Event event) {
+    public void askTimeForMeeting(Session session, Event event) {
         if (event.getText().contains("yes")) {
-            reply(webSocket, event, new Message("Okay. Would you like me to set a reminder for you?"));
+            reply(session, event, new Message("Okay. Would you like me to set a reminder for you?"));
             nextConversation(event);    // jump to next question in conversation  
         } else {
-            reply(webSocket, event, new Message("No problem. You can always schedule one with 'setup meeting' command."));
+            reply(session, event, new Message("No problem. You can always schedule one with 'setup meeting' command."));
             stopConversation(event);    // stop conversation only if user says no
         }
     }
 
     /**
-     * This method is chained with {@link SlackBot#askTimeForMeeting(WebSocket, Event)}.
-     *  @param webSocket
+     * This method is chained with {@link SlackBot#askTimeForMeeting(Session, Event)}.
+     * @param session
      * @param event
      */
     @Controller
-    public void askWhetherToRepeat(WebSocket webSocket, Event event) {
+    public void askWhetherToRepeat(Session session, Event event) {
         if (event.getText().contains("yes")) {
-            reply(webSocket, event, new Message("Great! I will remind you tomorrow before the meeting."));
+            reply(session, event, new Message("Great! I will remind you tomorrow before the meeting."));
         } else {
-            reply(webSocket, event, new Message("Oh! my boss is smart enough to remind himself :)"));
+            reply(session, event, new Message("Oh! my boss is smart enough to remind himself :)"));
         }
         stopConversation(event);    // stop conversation
     }

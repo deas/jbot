@@ -39,7 +39,7 @@ import com.fasterxml.jackson.databind.SerializationFeature;
 import com.fasterxml.jackson.databind.cfg.HandlerInstantiator;
 import com.fasterxml.jackson.databind.jsontype.TypeResolverBuilder;
 import com.fasterxml.jackson.databind.ser.FilterProvider;
-import com.fasterxml.jackson.dataformat.xml.XmlMapper;
+// import com.fasterxml.jackson.dataformat.xml.XmlMapper;
 
 import org.springframework.beans.factory.BeanClassLoaderAware;
 import org.springframework.beans.factory.FactoryBean;
@@ -159,10 +159,10 @@ public class Jackson2ObjectMapperFactoryBean implements FactoryBean<ObjectMapper
 	 * If set to true and no custom {@link ObjectMapper} has been set, a {link XmlMapper}
 	 * will be created using its default constructor.
 	 * @since 4.1
-	 */
 	public void setCreateXmlMapper(boolean createXmlMapper) {
 		this.builder.createXmlMapper(createXmlMapper);
 	}
+	 */
 
 	/**
 	 * Define the {@link JsonFactory} to be used to create the {@link ObjectMapper}

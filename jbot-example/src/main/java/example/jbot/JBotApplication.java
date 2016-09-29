@@ -25,13 +25,11 @@ public class JBotApplication {
      */
     public static void main(String[] args) {
         ApplicationContext context = new AnnotationConfigApplicationContext(JBotApplication.class);
-        /*
         try {
             Thread.sleep(10000);
         } catch (InterruptedException e) {
             throw new RuntimeException(e);
         }
-        */
         // SpringApplication.run(JBotApplication.class, args);
     }
 }
