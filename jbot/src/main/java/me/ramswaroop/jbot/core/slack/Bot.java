@@ -3,15 +3,32 @@ package me.ramswaroop.jbot.core.slack;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import me.ramswaroop.jbot.core.slack.models.Event;
 import me.ramswaroop.jbot.core.slack.models.Message;
+import org.glassfish.tyrus.client.ClientManager;
+import org.glassfish.tyrus.core.wsadl.model.*;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.util.StringUtils;
+
+import javax.annotation.PostConstruct;
+import javax.websocket.*;
+import javax.websocket.Endpoint;
+import java.io.IOException;
+import java.lang.reflect.Method;
+import java.net.URI;
+import java.net.URISyntaxException;
+import java.util.*;
+import java.util.concurrent.Future;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+
+/*
 import org.asynchttpclient.AsyncHttpClient;
 import org.asynchttpclient.DefaultAsyncHttpClient;
 import org.asynchttpclient.ws.WebSocket;
 import org.asynchttpclient.ws.WebSocketTextListener;
 import org.asynchttpclient.ws.WebSocketUpgradeHandler;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.util.StringUtils;
+*/
 /*
 import org.springframework.web.socket.CloseStatus;
 import org.springframework.web.socket.TextMessage;
@@ -20,14 +37,6 @@ import org.springframework.web.socket.WebSocketSession;
 import org.springframework.web.socket.client.WebSocketConnectionManager;
 import org.springframework.web.socket.client.standard.StandardWebSocketClient;
 */
-
-import javax.annotation.PostConstruct;
-import java.io.IOException;
-import java.lang.reflect.Method;
-import java.util.*;
-import java.util.concurrent.ExecutionException;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
 /**
  * Base class for making Slack Bots. Any class extending
@@ -60,7 +69,9 @@ public abstract class Bot {
      */
     private final Map<String, Queue<MethodWrapper>> conversationQueueMap = new HashMap<>();
 
-    private  WebSocket websocket;
+    // private  WebSocket websocket;
+    private Session session;
+
     /**
      * Service to access Slack APIs.
      */
@@ -128,9 +139,9 @@ public abstract class Bot {
      * @param session
      * see WebSocketHandler#afterConnectionEstablished
     public void afterConnectionEstablished(WebSocketSession session) {
-        logger.debug("WebSocket connected: {}", session);
+    logger.debug("WebSocket connected: {}", session);
     }
-    */
+     */
 
     /**
      * Invoked after the web socket connection is closed.
@@ -140,7 +151,7 @@ public abstract class Bot {
      * @param status
      * see WebSocketHandler#afterConnectionClosed
     public void afterConnectionClosed(WebSocketSession session, CloseStatus status) {
-        logger.debug("WebSocket closed: {}, Close Status: {}", session, status.toString());
+    logger.debug("WebSocket closed: {}, Close Status: {}", session, status.toString());
     }
      */
 
@@ -151,14 +162,15 @@ public abstract class Bot {
      * @param exception
      * see WebSocketHandler#handleTransportError
     public void handleTransportError(WebSocketSession session, Throwable exception) {
-        logger.error("Transport Error: {}", exception);
+    logger.error("Transport Error: {}", exception);
     }
      */
 
     /**
      * Invoked when a new Slack event(WebSocket text message) arrives.
-     *
+     * <p>
      * param session
+     *
      * @param textMessage
      * @throws Exception
      */
@@ -181,9 +193,9 @@ public abstract class Bot {
             }
 
             if (isConversationOn(event)) {
-                invokeChainedMethod(/*session*/ this.websocket, event);
+                invokeChainedMethod(session, event);
             } else {
-                invokeMethods(/*session*/ this.websocket, event);
+                invokeMethods(session, event);
             }
         } catch (Exception e) {
             logger.error("Error handling response from Slack: {}. \nException: ", textMessage/*.getPayload()*/, e);
@@ -236,19 +248,20 @@ public abstract class Bot {
     /**
      * Method to send a reply back to Slack after receiving an {@link Event}.
      * Learn <a href="https://api.slack.com/rtm">more on sending responses to Slack.</a>
-     *
+     * <p>
      * param session
      * param event
      * param reply
      */
-    public final void reply(WebSocket/*Session session*/ webSocket, Event event, Message reply) {
+    public final void reply(Session session, Event event, Message reply) {
         try {
             reply.setType(EventType.MESSAGE.name().toLowerCase());
             reply.setText(encode(reply.getText()));
             if (reply.getChannel() == null && event.getChannelId() != null) {
                 reply.setChannel(event.getChannelId());
             }
-            webSocket.sendMessage(reply.toJSONString());
+            session.getBasicRemote().sendText(reply.toJSONString());
+            // webSocket.sendMessage(reply.toJSONString());
             // session.sendMessage(new TextMessage(reply.toJSONString()));
             if (logger.isDebugEnabled()) {  // For debugging purpose only
                 logger.debug("Reply (Message): {}", reply.toJSONString());
@@ -289,11 +302,12 @@ public abstract class Bot {
     /**
      * Invoke the methods with matching {@link Controller#events()}
      * and {@link Controller#pattern()} in events received from Slack.
-     *
+     * <p>
      * param session
+     *
      * @param event
      */
-    private void invokeMethods(WebSocket/*Session session*/ webSocket, Event event) {
+    private void invokeMethods(Session session, Event event) {
         try {
             List<MethodWrapper> methodWrappers = eventToMethodsMap.get(event.getType().toUpperCase());
             if (methodWrappers == null) return;
@@ -309,9 +323,9 @@ public abstract class Bot {
                 for (MethodWrapper methodWrapper : methodWrappers) {
                     Method method = methodWrapper.getMethod();
                     if (method.getParameterCount() == 3) {
-                        method.invoke(this, webSocket /*session*/, event, methodWrapper.getMatcher());
+                        method.invoke(this, session, event, methodWrapper.getMatcher());
                     } else {
-                        method.invoke(this, webSocket/* session*/, event);
+                        method.invoke(this, session, event);
                     }
                 }
             }
@@ -322,11 +336,12 @@ public abstract class Bot {
 
     /**
      * Invoke the appropriate method in a conversation.
-     *
+     * <p>
      * param session
+     *
      * @param event
      */
-    private void invokeChainedMethod(WebSocket/*Session session*/ webSocket, Event event) {
+    private void invokeChainedMethod(Session session, Event event) {
         Queue<MethodWrapper> queue = conversationQueueMap.get(event.getChannelId());
 
         if (queue != null && !queue.isEmpty()) {
@@ -336,7 +351,7 @@ public abstract class Bot {
                 EventType[] eventTypes = methodWrapper.getMethod().getAnnotation(Controller.class).events();
                 for (EventType eventType : eventTypes) {
                     if (eventType.name().equals(event.getType().toUpperCase())) {
-                        methodWrapper.getMethod().invoke(this, /*session*/ webSocket, event);
+                        methodWrapper.getMethod().invoke(this, session, event);
                         return;
                     }
                 }
@@ -379,11 +394,13 @@ public abstract class Bot {
         }
         return null;
     }
-
-    private AsyncHttpClient/*StandardWebSocketClient*/ client() {
+    /*StandardWebSocketClient*/
+    /*
+    private AsyncHttpClientclient() {
         return new DefaultAsyncHttpClient();
         // return new StandardWebSocketClient();
     }
+    */
 
     /*
     private BotWebSocketHandler handler() {
@@ -395,40 +412,45 @@ public abstract class Bot {
      * and after which your bot becomes live.
      */
     @PostConstruct
-    private void startWebSocketConnection() throws ExecutionException, InterruptedException {
+    private void startWebSocketConnection() throws Exception {
         slackService.startRTM(getSlackToken());
         if (slackService.getWebSocketUrl() != null) {
-            this.websocket = client().prepareGet(slackService.getWebSocketUrl()/*"getTargetUrl()"*/)
-                    .execute(new WebSocketUpgradeHandler.Builder().addWebSocketListener(
-                            new WebSocketTextListener() {
+            final ClientEndpointConfig cec = ClientEndpointConfig.Builder.create().build();
 
-                                @Override
-                                public void onMessage(String message) {
-                                    logger.debug("on message " + message);
-                                    try {
-                                        handleTextMessage(message);
-                                    } catch (Exception e) {
-                                        logger.error(e.getMessage(), e);
-                                    }
-                                }
+            ClientManager client = ClientManager.createClient();
+            try {
+                Endpoint endpoint = new Endpoint() {
+                    @Override
+                    public void onClose(Session session, CloseReason closeReason) {
+                        logger.debug("on close");
+                    }
 
-                                @Override
-                                public void onOpen(WebSocket websocket) {
-                                    logger.debug("on open {}", websocket);
-                                    // websocket.sendMessage("...").sendMessage("...");
-                                }
+                    @Override
+                    public void onError(Session session, Throwable thr) {
+                        logger.error(thr.getMessage(), thr);
+                    }
 
-                                @Override
-                                public void onClose(WebSocket websocket) {
-                                    logger.debug("on close {}", websocket);
-                                    // latch.countDown();
-                                }
+                    @Override
+                    public void onOpen(Session session, EndpointConfig config) {
+                        // try {
+                        session.addMessageHandler(new MessageHandler.Whole<String>() {
 
-                                @Override
-                                public void onError(Throwable t) {
-                                    t.printStackTrace();
+                            @Override
+                            public void onMessage(String message) {
+                                try {
+                                    handleTextMessage(message);
+                                } catch (Exception e) {
+                                    logger.error(e.getMessage(), e);
                                 }
-                            }).build()).get();
+                            }
+
+                        });
+                    }
+                };
+                this.session = client.connectToServer(endpoint, cec, new URI(slackService.getWebSocketUrl()));
+            } catch (URISyntaxException e) {
+                throw new RuntimeException(e);
+            }
             // WebSocketConnectionManager manager = new WebSocketConnectionManager(client(), handler(), slackService.getWebSocketUrl());
             // manager.start();
         } else {
