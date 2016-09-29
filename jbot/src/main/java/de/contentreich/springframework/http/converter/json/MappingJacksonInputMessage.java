@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package org.springframework.http.converter.json;
+package de.contentreich.springframework.http.converter.json;
 
 import java.io.IOException;
 import java.io.InputStream;

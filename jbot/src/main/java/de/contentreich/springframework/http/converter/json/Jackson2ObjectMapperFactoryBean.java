@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package org.springframework.http.converter.json;
+package de.contentreich.springframework.http.converter.json;
 
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;

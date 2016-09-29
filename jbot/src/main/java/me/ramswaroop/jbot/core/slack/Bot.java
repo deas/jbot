@@ -11,6 +11,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.util.StringUtils;
 
 import javax.annotation.PostConstruct;
+import javax.annotation.PreDestroy;
 import javax.websocket.*;
 import javax.websocket.Endpoint;
 import java.io.IOException;
@@ -413,6 +414,7 @@ public abstract class Bot {
      */
     @PostConstruct
     private void startWebSocketConnection() throws Exception {
+        logger.info("Starting web socket connection");
         slackService.startRTM(getSlackToken());
         if (slackService.getWebSocketUrl() != null) {
             final ClientEndpointConfig cec = ClientEndpointConfig.Builder.create().build();
@@ -451,12 +453,24 @@ public abstract class Bot {
             } catch (URISyntaxException e) {
                 throw new RuntimeException(e);
             }
+            // client.
             // WebSocketConnectionManager manager = new WebSocketConnectionManager(client(), handler(), slackService.getWebSocketUrl());
             // manager.start();
         } else {
             logger.error("No websocket url returned by Slack.");
         }
     }
+
+    @PreDestroy
+    private void stopWebsocketConnection() {
+        logger.info("Starting web socket connection");
+        try {
+            this.session.close();
+        } catch (IOException e) {
+            logger.error(e.getMessage(), e);
+        }
+    }
+
 
     /**
      * Wrapper class for methods annotated with {@link Controller}.

@@ -14,9 +14,8 @@
  * limitations under the License.
  */
 
-package org.springframework.http.converter.json;
+package de.contentreich.springframework.http.converter.json;
 
-import java.io.ByteArrayInputStream;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.Arrays;
@@ -27,8 +26,6 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.TimeZone;
-import javax.xml.stream.XMLInputFactory;
-import javax.xml.stream.XMLResolver;
 
 import com.fasterxml.jackson.annotation.JsonFilter;
 import com.fasterxml.jackson.annotation.JsonInclude;
@@ -61,7 +58,6 @@ import org.springframework.beans.FatalBeanException;
 import org.springframework.context.ApplicationContext;
 import org.springframework.util.Assert;
 import org.springframework.util.ClassUtils;
-import org.springframework.util.StreamUtils;
 import org.springframework.util.StringUtils;
 
 /**

@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package org.springframework.http.converter.json;
+package de.contentreich.springframework.http.converter.json;
 
 import com.fasterxml.jackson.annotation.ObjectIdGenerator;
 import com.fasterxml.jackson.annotation.ObjectIdResolver;
