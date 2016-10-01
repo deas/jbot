@@ -1,6 +1,8 @@
 package example.jbot.slack;
 
 
+import de.contentreich.test.rule.OutputCapture;
+import example.jbot.JBotApplication;
 import me.ramswaroop.jbot.core.slack.Bot;
 import me.ramswaroop.jbot.core.slack.Controller;
 import me.ramswaroop.jbot.core.slack.EventType;
@@ -13,7 +15,15 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
+import org.mockito.MockitoAnnotations;
 import org.mockito.runners.MockitoJUnitRunner;
+import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.ComponentScan;
+import org.springframework.context.annotation.Configuration;
+import org.springframework.test.context.ContextConfiguration;
+import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
+import org.springframework.test.context.support.AnnotationConfigContextLoader;
+import org.springframework.web.servlet.config.annotation.EnableWebMvc;
 // import org.springframework.boot.test.context.SpringBootTest;
 // import org.springframework.boot.test.rule.OutputCapture;
 // import org.springframework.web.socket.TextMessage;
@@ -23,7 +33,7 @@ import javax.websocket.Session;
 import java.util.Arrays;
 import java.util.regex.Matcher;
 
-// import static org.hamcrest.Matchers.containsString;
+import static org.hamcrest.Matchers.containsString;
 import static org.junit.Assert.assertThat;
 import static org.mockito.Mockito.when;
 
@@ -32,9 +42,11 @@ import static org.mockito.Mockito.when;
  * @version 20/06/2016
  */
 // @SpringBootTest
-@RunWith(MockitoJUnitRunner.class)
+// @TransactionConfiguration(transactionManager = "transactionManager", defaultRollback = true)
+// @Transactional
+@RunWith(SpringJUnit4ClassRunner.class)
+@ContextConfiguration(classes = JBotApplication.class)
 public class SlackBotTest {
-
     // @Mock
     // private WebSocket/*Session* session*/ webSocket;
 
@@ -43,13 +55,14 @@ public class SlackBotTest {
 
     @InjectMocks
     private TestBot bot;
-    /*
+
     @Rule
     public OutputCapture capture = new OutputCapture();
-    */
 
     @Before
     public void init() {
+        // http://solutiondesign.com/blog/-/blogs/spring-and-mockito-happy-together
+        MockitoAnnotations.initMocks(this);
         // set user
         User user = new User();
         user.setName("SlackBot");
@@ -73,7 +86,7 @@ public class SlackBotTest {
                 "\"user\": \"U023BECGF\"," +
                 "\"text\": \"<@UEADGH12S>: Hello\"}";
         bot.handleTextMessage(textMessage);
-        // assertThat(capture.toString(), containsString("Hi, I am"));
+        assertThat(capture.toString(), containsString("Hi, I am"));
     }
 
     @Test
@@ -84,7 +97,7 @@ public class SlackBotTest {
                 "\"user\": \"U023BECGF\"," +
                 "\"text\": \"Hello\"}";
         bot.handleTextMessage(textMessage);
-        // assertThat(capture.toString(), containsString("this is a direct message"));
+        assertThat(capture.toString(), containsString("this is a direct message"));
     }
 
     @Test
@@ -95,10 +108,10 @@ public class SlackBotTest {
                 "\"user\": \"U023BECGF\"," +
                 "\"text\": \"as12sd\"}";
         bot.handleTextMessage(textMessage);
-        // assertThat(capture.toString(), containsString("First group: as12sd"));
-        // assertThat(capture.toString(), containsString("Second group: as"));
-        // assertThat(capture.toString(), containsString("Third group: 12"));
-        // assertThat(capture.toString(), containsString("Fourth group: sd"));
+        assertThat(capture.toString(), containsString("First group: as12sd"));
+        assertThat(capture.toString(), containsString("Second group: as"));
+        assertThat(capture.toString(), containsString("Third group: 12"));
+        assertThat(capture.toString(), containsString("Fourth group: sd"));
     }
 
     @Test
@@ -109,7 +122,7 @@ public class SlackBotTest {
                 "\"user\": \"U023BECGF\"," +
                 "\"text\": \"as12sd\"}"; // this matches the pattern but it's a direct message instead of message
         bot.handleTextMessage(textMessage);
-        // assertThat(capture.toString(), containsString("this is a direct message"));
+        assertThat(capture.toString(), containsString("this is a direct message"));
     }
 
     @Test
@@ -125,7 +138,7 @@ public class SlackBotTest {
                 "\"item_user\":\"U1G0EBU2G\"," +
                 "\"event_ts\":\"1471213126.954738\"}";
         bot.handleTextMessage(textMessage);
-        // assertThat(capture.toString(), containsString("Thanks for the pin"));
+        assertThat(capture.toString(), containsString("Thanks for the pin"));
     }
 
     @Test
@@ -136,7 +149,7 @@ public class SlackBotTest {
                 "\"file\":{\"id\":\"F219AF6VD\"}," +
                 "\"event_ts\":\"1471213812.962298\"}";
         bot.handleTextMessage(textMessage);
-        // assertThat(capture.toString(), containsString("File shared"));
+        assertThat(capture.toString(), containsString("File shared"));
     }
 
     @Test
@@ -147,7 +160,7 @@ public class SlackBotTest {
                 "\"user\": \"U023BECGF\"," +
                 "\"text\": \"setup meeting\"}";
         bot.handleTextMessage(textMessage);
-        // ssertThat(capture.toString(), containsString("At what time (ex. 15:30) do you want me to set up the meeting?"));
+        assertThat(capture.toString(), containsString("At what time (ex. 15:30) do you want me to set up the meeting?"));
 
         textMessage = "{\"type\": \"message\"," +
                 "\"ts\": \"1258878749.000002\"," +
@@ -155,7 +168,7 @@ public class SlackBotTest {
                 "\"user\": \"U023BECGF\"," +
                 "\"text\": \"12:50\"}";
         bot.handleTextMessage(textMessage);
-        // assertThat(capture.toString(), containsString("Would you like to repeat it tomorrow?"));
+        assertThat(capture.toString(), containsString("Would you like to repeat it tomorrow?"));
 
         textMessage = "{\"type\": \"message\"," +
                 "\"ts\": \"1358878749.000002\"," +
@@ -163,7 +176,7 @@ public class SlackBotTest {
                 "\"user\": \"U023BECGF\"," +
                 "\"text\": \"yes\"}";
         bot.handleTextMessage(textMessage);
-        // assertThat(capture.toString(), containsString("Would you like me to set a reminder for you"));
+        assertThat(capture.toString(), containsString("Would you like me to set a reminder for you"));
 
         textMessage = "{\"type\": \"message\"," +
                 "\"ts\": \"1458878749.000002\"," +
@@ -171,7 +184,7 @@ public class SlackBotTest {
                 "\"user\": \"U023BECGF\"," +
                 "\"text\": \"yes\"}";
         bot.handleTextMessage(textMessage);
-        // assertThat(capture.toString(), containsString("I will remind you tomorrow before the meeting"));
+        assertThat(capture.toString(), containsString("I will remind you tomorrow before the meeting"));
     }
 
     @Test
@@ -182,7 +195,7 @@ public class SlackBotTest {
                 "\"user\": \"U023BECGF\"," +
                 "\"text\": \"setup meeting\"}";
         bot.handleTextMessage(textMessage);
-        // assertThat(capture.toString(), containsString("At what time (ex. 15:30) do you want me to set up the meeting?"));
+        assertThat(capture.toString(), containsString("At what time (ex. 15:30) do you want me to set up the meeting?"));
 
         textMessage = "{\"type\": \"message\"," +
                 "\"ts\": \"1348878749.000302\"," +
@@ -190,7 +203,7 @@ public class SlackBotTest {
                 "\"user\": \"U023BECGF\"," +
                 "\"text\": \"12:40\"}";
         bot.handleTextMessage(textMessage);
-        // assertThat(capture.toString(), containsString("Would you like to repeat it tomorrow?"));
+        assertThat(capture.toString(), containsString("Would you like to repeat it tomorrow?"));
 
         textMessage = "{\"type\": \"message\"," +
                 "\"ts\": \"1358878749.000002\"," +
@@ -198,7 +211,7 @@ public class SlackBotTest {
                 "\"user\": \"U023BECGF\"," +
                 "\"text\": \"no\"}";
         bot.handleTextMessage(textMessage);
-        // assertThat(capture.toString(), containsString("You can always schedule one with 'setup meeting' command"));
+        assertThat(capture.toString(), containsString("You can always schedule one with 'setup meeting' command"));
     }
 
 

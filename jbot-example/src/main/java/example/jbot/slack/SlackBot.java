@@ -8,14 +8,12 @@ import me.ramswaroop.jbot.core.slack.models.Message;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.context.annotation.AnnotationConfigApplicationContext;
-import org.springframework.context.annotation.Configuration;
-import org.springframework.context.annotation.PropertySource;
 import org.springframework.stereotype.Component;
-// import org.springframework.web.socket.WebSocketSession;
 
 import javax.websocket.Session;
 import java.util.regex.Matcher;
+
+// import org.springframework.web.socket.WebSocketSession;
 
 /**
  * A Slack Bot sample. You can create multiple bots by just
@@ -25,7 +23,7 @@ import java.util.regex.Matcher;
  * @version 1.0.0, 05/06/2016
  */
 @Component
-@PropertySource("classpath:/application.properties")
+// @PropertySource("classpath:/application.properties")
 public class SlackBot extends Bot {
 
     private static final Logger logger = LoggerFactory.getLogger(SlackBot.class);

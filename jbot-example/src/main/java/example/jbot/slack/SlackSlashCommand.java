@@ -7,7 +7,6 @@ import me.ramswaroop.jbot.core.slack.models.RichMessage;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.context.annotation.PropertySource;
 import org.springframework.http.MediaType;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -24,7 +23,7 @@ import org.springframework.web.bind.annotation.ResponseBody;
  */
 // @RestController
 @Controller
-@PropertySource("classpath:/application.properties")
+// @PropertySource("classpath:/application.properties")
 public class SlackSlashCommand {
 
     private static final Logger logger = LoggerFactory.getLogger(SlackSlashCommand.class);

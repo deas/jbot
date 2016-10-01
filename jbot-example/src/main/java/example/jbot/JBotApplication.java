@@ -5,6 +5,7 @@ package example.jbot;
 
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.annotation.*;
+import org.springframework.web.servlet.config.annotation.EnableWebMvc;
 // import org.springframework.core.env.PropertySource;
 // import org.springframework.core.env.PropertySources;
 
@@ -12,9 +13,10 @@ import org.springframework.context.annotation.*;
 
 // @SpringBootApplication(scanBasePackages = {"me.ramswaroop.jbot", "example.jbot"})
 @Configuration
+// @EnableWebMvc
 @ImportResource({"classpath:/application-context.xml"})
 // @PropertySource("classpath:/application.properties")
-@ComponentScan({"me.ramswaroop.jbot", "example.jbot"})
+@ComponentScan({"me.ramswaroop.jbot", "example.jbot.slack"})
 public class JBotApplication {
 
     /**
